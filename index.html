@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EVE Online Buyback2</title>
+    <title>EVE Online Buyback</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -36,7 +36,7 @@
 </head>
 <body>
 
-    <h1>EVE Online Buyback2</h1>
+    <h1>EVE Online Buyback</h1>
     <form id="buybackForm">
         <label for="items">Füge hier deine Item-Liste ein:</label>
         <textarea id="items" rows="10" placeholder="Kopiere die Items hier..." required></textarea>
@@ -55,20 +55,16 @@
             'Ship': 0.8     // 80% für Schiffe
         };
 
-        // Funktion zur Abfrage der Item-Preise über die ESI API
-        async function fetchItemPrices(typeIds) {
-            const endpoint = `https://esi.evetech.net/latest/markets/10000002/prices/`;
-            const response = await fetch(endpoint);
-            const data = await response.json();
-            return data.filter(item => typeIds.includes(item.type_id));
+        async function fetchStoredItemPrices() {
+            // Hier holen wir die lokal gespeicherten Preise
+            const response = await fetch('./itemPrices.json'); // Pfad zur gespeicherten Datei
+            return response.json();
         }
 
         document.getElementById('buybackForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
             var items = document.getElementById('items').value;
-
-            // An EVEpraisal API senden, um die Item-IDs und Details zu bekommen
             const appraisalResponse = await fetch('https://evepraisal.com/appraisal.json', {
                 method: 'POST',
                 headers: {
@@ -76,12 +72,9 @@
                 },
                 body: JSON.stringify({market_name: "jita", raw_text: items})
             });
-            
+
             const appraisalData = await appraisalResponse.json();
-            const typeIds = appraisalData.items.map(item => item.type_id);
-            
-            // Preise von der ESI API holen
-            const prices = await fetchItemPrices(typeIds);
+            const prices = await fetchStoredItemPrices(); // Preise abrufen
 
             let totalPrice = 0;
 
