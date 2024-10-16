@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EVE Buyback</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        input, button {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>EVE Online Buyback Formular</h1>
+    <form id="buybackForm">
+        <input type="text" id="name" placeholder="Spielername" required>
+        <input type="text" id="item" placeholder="Itemname" required>
+        <input type="number" id="quantity" placeholder="Menge" required>
+        <input type="number" id="price" placeholder="Preis pro Einheit (ISK)" required>
+        <input type="number" id="total" placeholder="Gesamtwert (ISK)" required>
+        <button type="submit">Anfrage senden</button>
+    </form>
+
+    <script>
+        document.getElementById('buybackForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Formulardaten erfassen
+            var name = document.getElementById('name').value;
+            var item = document.getElementById('item').value;
+            var quantity = document.getElementById('quantity').value;
+            var price = document.getElementById('price').value;
+            var total = document.getElementById('total').value;
+
+            // Sende die Daten an das Google Sheets Script
+            fetch('https://script.google.com/macros/s/AKfycbxWChQlkVsEts4dTb4VVVO4MwBsCqCwvbOuPFIcT4T8NmzjYDBFPfXHWITVakGjt7p-xw/exec', {
+                method: 'POST',
+                body: JSON.stringify({name: name, item: item, quantity: quantity, price: price, total: total}),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(response => response.json())
+            .then(data => {
+                alert('Anfrage erfolgreich gesendet!');
+            }).catch(error => {
+                console.error('Fehler:', error);
+            });
+        });
+    </script>
+
+</body>
+</html>
