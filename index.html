@@ -48,79 +48,58 @@
     </div>
 
     <script>
-        // Prozentsätze pro Kategorie
+        // Prozentsätze pro Kategorie (als Beispiel)
         const categoryRates = {
-            'Module': 0.9,    // 90% des Jita Buy-Preises
-            'Ore': 0.7,       // 70% des Jita Buy-Preises (für Erze)
-            'Ship': 0.8       // 80% des Jita Buy-Preises
+            'Module': 0.9,  // 90% des Jita Buy-Preises
+            'Ore': 0.7,     // 70% für Erze
+            'Ship': 0.8     // 80% für Schiffe
         };
 
-        // Reprocessing-Daten für Erze (wie viel Mineralien beim Reprocessing erhalten werden)
-        const reprocessingData = {
-            'Veldspar': { Tritanium: 415 }, // Beispiel: 415 Tritanium pro Einheit Veldspar
-            'Scordite': { Tritanium: 346, Pyerite: 173 }
-            // Füge hier weitere Erze hinzu
-        };
+        // Funktion zur Abfrage der Item-Preise über die ESI API
+        async function fetchItemPrices(typeIds) {
+            const endpoint = `https://esi.evetech.net/latest/markets/10000002/prices/`;
+            const response = await fetch(endpoint);
+            const data = await response.json();
+            return data.filter(item => typeIds.includes(item.type_id));
+        }
 
-        // Jita Buy-Preise für Mineralien
-        const mineralPrices = {
-            Tritanium: 5,  // Beispielpreis
-            Pyerite: 10
-            // Füge hier weitere Mineralienpreise hinzu
-        };
-
-        document.getElementById('buybackForm').addEventListener('submit', function(e) {
+        document.getElementById('buybackForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
-            // Formulardaten erfassen (Items aus dem Textfeld)
             var items = document.getElementById('items').value;
 
-            // Sende die Daten an die EVEpraisal API
-            fetch('https://evepraisal.com/appraisal.json', {
+            // An EVEpraisal API senden, um die Item-IDs und Details zu bekommen
+            const appraisalResponse = await fetch('https://evepraisal.com/appraisal.json', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({market_name: "jita", raw_text: items})
-            })
-            .then(response => response.json())
-            .then(data => {
-                let totalPrice = 0;
-
-                // Durchlaufe alle Items
-                data.items.forEach(item => {
-                    const category = item.type.category;  // Kategorie des Items
-                    const basePrice = item.prices.buy;    // Jita Buy-Preis
-                    let itemPrice = 0;
-
-                    if (category === 'Ore' && reprocessingData[item.type.name]) {
-                        // Spezialfall: Erz -> Reprocessing
-                        const minerals = reprocessingData[item.type.name];
-                        let oreValue = 0;
-                        // Berechne den Wert der Mineralien nach dem Reprocessing
-                        for (let mineral in minerals) {
-                            oreValue += minerals[mineral] * mineralPrices[mineral];
-                        }
-                        // Berechne den Preis basierend auf dem Output und dem festgelegten Prozentsatz
-                        itemPrice = oreValue * categoryRates['Ore'];
-                    } else {
-                        // Standard-Berechnung: Prozentsatz auf Jita Buy
-                        const rate = categoryRates[category] || 1;  // Standard 100% falls keine Kategorie gefunden wird
-                        itemPrice = basePrice * rate;
-                    }
-
-                    totalPrice += itemPrice * item.quantity;  // Preis für die Anzahl der Items
-                });
-
-                // Zeige den Gesamtpreis an
-                document.getElementById('result').innerHTML = `
-                    <h2>Gesamter Wert der Items: ${totalPrice.toLocaleString()} ISK</h2>
-                `;
-            })
-            .catch(error => {
-                console.error('Fehler:', error);
-                document.getElementById('result').innerHTML = `<p style="color: red;">Fehler beim Ermitteln der Preise. Bitte versuche es erneut.</p>`;
             });
+            
+            const appraisalData = await appraisalResponse.json();
+            const typeIds = appraisalData.items.map(item => item.type_id);
+            
+            // Preise von der ESI API holen
+            const prices = await fetchItemPrices(typeIds);
+
+            let totalPrice = 0;
+
+            // Durchlaufe alle Items, um den Preis zu berechnen
+            appraisalData.items.forEach(item => {
+                const priceData = prices.find(price => price.type_id === item.type_id);
+                if (priceData) {
+                    const category = item.type.category;  // Kategorie des Items
+                    const basePrice = priceData.average_price || priceData.adjusted_price;
+                    const rate = categoryRates[category] || 1;  // Prozentsatz für die Kategorie
+                    const itemPrice = basePrice * rate * item.quantity;
+                    totalPrice += itemPrice;
+                }
+            });
+
+            document.getElementById('result').innerHTML = `
+                <h2>Gesamter Wert der Items: ${totalPrice.toLocaleString()} ISK</h2>
+            `;
         });
     </script>
 
