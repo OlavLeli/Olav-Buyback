@@ -1,100 +1,130 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EVE Online Buyback</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f0f0f0;
-        }
-        form {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        textarea, button, input {
-            display: block;
-            width: 100%;
-            margin: 10px 0;
-            padding: 10px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-        }
-        button {
-            background-color: #28a745;
-            color: #fff;
-            cursor: pointer;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>EVE Online Kurierkosten Rechner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      padding: 20px;
+      max-width: 500px;
+      background-color: #f4f4f4;
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    label {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    select, input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    button {
+      background-color: #0080ff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #005ecb;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-weight: bold;
+      background-color: #fff;
+      padding: 15px;
+      border-radius: 8px;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        margin: 10px;
+        padding: 15px;
+      }
+    }
+  </style>
 </head>
 <body>
 
-    <h1>EVE Online Buyback</h1>
-    <form id="buybackForm">
-        <label for="items">Füge hier deine Item-Liste ein:</label>
-        <textarea id="items" rows="10" placeholder="Kopiere die Items hier..." required></textarea>
-        <button type="submit">Preise ermitteln</button>
-    </form>
+  <h2>EVE Online – Kurierkosten Rechner</h2>
 
-    <div id="result" style="margin-top: 20px;">
-        <!-- Hier wird der Preis angezeigt -->
-    </div>
+  <label for="from">Ship from:</label>
+  <select id="from">
+    <option value="Jita">Jita</option>
+    <option value="Amarr">Amarr</option>
+    <option value="Dodixie">Dodixie</option>
+  </select>
 
-    <script>
-        // Prozentsätze pro Kategorie (als Beispiel)
-        const categoryRates = {
-            'Module': 0.9,  // 90% des Jita Buy-Preises
-            'Ore': 0.7,     // 70% für Erze
-            'Ship': 0.8     // 80% für Schiffe
-        };
+  <label for="to">Ship to:</label>
+  <select id="to">
+    <option value="Jita">Jita</option>
+    <option value="Amarr">Amarr</option>
+    <option value="Dodixie">Dodixie</option>
+  </select>
 
-        async function fetchStoredItemPrices() {
-            // Hier holen wir die lokal gespeicherten Preise
-            const response = await fetch('./itemPrices.json'); // Pfad zur gespeicherten Datei
-            return response.json();
-        }
+  <label for="volume">Volumen (m³):</label>
+  <input type="number" id="volume" placeholder="z. B. 10000" min="0">
 
-        document.getElementById('buybackForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
+  <button onclick="calculate()">Kosten berechnen</button>
 
-            var items = document.getElementById('items').value;
-            const appraisalResponse = await fetch('https://evepraisal.com/appraisal.json', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({market_name: "jita", raw_text: items})
-            });
+  <div id="result"></div>
 
-            const appraisalData = await appraisalResponse.json();
-            const prices = await fetchStoredItemPrices(); // Preise abrufen
+  <script>
+    const rates = {
+      'Jita-Amarr': 500,
+      'Amarr-Jita': 500,
+      'Jita-Dodixie': 650,
+      'Dodixie-Jita': 650,
+      'Amarr-Dodixie': 700,
+      'Dodixie-Amarr': 700
+    };
 
-            let totalPrice = 0;
+    const MIN_PRICE = 5_000_000;
 
-            // Durchlaufe alle Items, um den Preis zu berechnen
-            appraisalData.items.forEach(item => {
-                const priceData = prices.find(price => price.type_id === item.type_id);
-                if (priceData) {
-                    const category = item.type.category;  // Kategorie des Items
-                    const basePrice = priceData.average_price || priceData.adjusted_price;
-                    const rate = categoryRates[category] || 1;  // Prozentsatz für die Kategorie
-                    const itemPrice = basePrice * rate * item.quantity;
-                    totalPrice += itemPrice;
-                }
-            });
+    function calculate() {
+      const from = document.getElementById('from').value;
+      const to = document.getElementById('to').value;
+      const volume = parseFloat(document.getElementById('volume').value);
+      const route = `${from}-${to}`;
+      const rate = rates[route];
+      const result = document.getElementById('result');
 
-            document.getElementById('result').innerHTML = `
-                <h2>Gesamter Wert der Items: ${totalPrice.toLocaleString()} ISK</h2>
-            `;
-        });
-    </script>
+      if (from === to) {
+        result.textContent = "Start- und Zielsystem dürfen nicht identisch sein.";
+        return;
+      }
+
+      if (!rate) {
+        result.textContent = "Für diese Route ist kein Preis hinterlegt.";
+        return;
+      }
+
+      if (isNaN(volume) || volume <= 0) {
+        result.textContent = "Bitte ein gültiges Volumen in m³ eingeben.";
+        return;
+      }
+
+      let cost = rate * volume;
+      if (cost < MIN_PRICE) cost = MIN_PRICE;
+
+      result.textContent = `Gesamtkosten: ${cost.toLocaleString()} ISK (inkl. Mindestpreis)`;
+    }
+  </script>
 
 </body>
 </html>
