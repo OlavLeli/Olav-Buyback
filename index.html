@@ -92,19 +92,13 @@
   <div class="container">
     <h2>EVE Online Kurier-Rechner</h2>
 
-  <div>  
     <label for="from">Von:</label>
     <select id="from">
       <option value="Jita">Jita</option>
       <option value="T-GCGL">T-GCGL</option>
       <option value="4-HWWF">4-HWWF</option>
     </select>
-    Jita-4-HWWF 480 ISK/m³
-    Jita-T-GCGL 500 ISK/m³
-    T-GCGL-4-HWWF 300 ISK/m³
-    4-HWWF-T-GCGL 300 ISK/m³
-  </div>
-
+    
     <label for="to">Nach:</label>
     <select id="to">
       <option value="4-HWWF">4-HWWF</option>
@@ -115,7 +109,7 @@
     <input type="number" id="volume" placeholder="z. B. 10000" min="0" max="330000" step="1" oninput="checkVolumeLimit(this)">
     <small id="volume-warning">Maximal 330'000 m³ erlaubt!</small>
 
-    <label for="collateral">Collateral (ISK):</label>
+    <label for="collateral">Collateral (+1%):</label>
     <input type="text" id="collateral" placeholder="z. B. 2.5b oder 100m">
 
     <button onclick="calculate()">Kosten berechnen</button>
