@@ -113,23 +113,22 @@
     <label for="from">Ship from:</label>
     <select id="from">
       <option value="Jita">Jita</option>
-      <option value="Amarr">Amarr</option>
-      <option value="Dodixie">Dodixie</option>
+      <option value="Amarr">T-GCGL</option>
+      <option value="Dodixie">4-HWWF</option>
     </select>
 
     <label for="to">Ship to:</label>
     <select id="to">
-      <option value="Jita">Jita</option>
-      <option value="Amarr">Amarr</option>
-      <option value="Dodixie">Dodixie</option>
+      <option value="Jita">4-HWWF</option>
+      <option value="Amarr">T-GCGL</option>
     </select>
 
     <div id="rateDisplay">Kosten pro m³: –</div>
 
     <label for="volume">Volumen (m³):</label>
-    <input type="number" id="volume" placeholder="z. B. 10000" min="0">
+    <input type="number" id="volume" placeholder="z. B. 10000" min="0" max="330000">
 
-    <label for="collateral">Collateral (ISK) – z. B. 2.5b oder 10m:</label>
+    <label for="collateral">Collateral (ISK)</label>
     <input type="text" id="collateral" placeholder="z. B. 1.2b oder 500m">
 
     <button onclick="updateRateAndCalculate()">Kosten berechnen</button>
@@ -143,12 +142,10 @@
 
   <script>
     const rates = {
-      'Jita-Amarr': 500,
-      'Amarr-Jita': 500,
-      'Jita-Dodixie': 650,
-      'Dodixie-Jita': 650,
-      'Amarr-Dodixie': 700,
-      'Dodixie-Amarr': 700
+      'Jita-4-HWWF': 480,
+      'Jita-T-GCGL': 500,
+      '4-HWWF-T-GCGL': 300,
+      'T-GCGL-4-HWWF': 300,
     };
 
     const MIN_PRICE = 5000000;
