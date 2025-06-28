@@ -2,23 +2,34 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>EVE Online Kurierkosten Rechner</title>
+  <title>EVE Online – Kurierkosten Rechner</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 20px;
+      margin: 0;
       padding: 20px;
-      max-width: 500px;
-      background-color: #f4f4f4;
+      max-width: 600px;
+      margin: auto;
+      background: url('https://images.evetech.net/ships/603/portrait?size=512') no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+    }
+
+    .container {
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 20px;
+      border-radius: 12px;
     }
 
     h2 {
       text-align: center;
+      margin-bottom: 20px;
     }
 
     label {
       margin-top: 15px;
+      display: block;
       font-weight: bold;
     }
 
@@ -32,57 +43,77 @@
       font-size: 16px;
     }
 
-    button {
-      background-color: #0080ff;
+    input[readonly] {
+      background-color: #e9e9e9;
+      cursor: text;
+      color: #000;
+    }
+
+    button.copy-btn {
+      background-color: #28a745;
       color: white;
       border: none;
       cursor: pointer;
+      margin-bottom: 10px;
     }
 
-    button:hover {
-      background-color: #005ecb;
+    button.copy-btn:hover {
+      background-color: #1e7e34;
     }
 
-    #result {
-      margin-top: 20px;
-      font-weight: bold;
-      background-color: #fff;
-      padding: 15px;
-      border-radius: 8px;
+    #rateDisplay {
+      margin-top: -10px;
+      margin-bottom: 10px;
+      font-style: italic;
+      color: #ccc;
+    }
+
+    .copy-wrap {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .copy-wrap input {
+      flex: 1;
     }
 
     @media (max-width: 600px) {
       body {
-        margin: 10px;
         padding: 15px;
       }
     }
   </style>
 </head>
 <body>
+  <div class="container">
+    <h2>EVE Online – Kurierkosten Rechner</h2>
 
-  <h2>EVE Online – Kurierkosten Rechner</h2>
+    <label for="from">Ship from:</label>
+    <select id="from" onchange="updateRateAndCalculate()">
+      <option value="Jita">Jita</option>
+      <option value="Amarr">Amarr</option>
+      <option value="Dodixie">Dodixie</option>
+    </select>
 
-  <label for="from">Ship from:</label>
-  <select id="from">
-    <option value="Jita">Jita</option>
-    <option value="Amarr">Amarr</option>
-    <option value="Dodixie">Dodixie</option>
-  </select>
+    <label for="to">Ship to:</label>
+    <select id="to" onchange="updateRateAndCalculate()">
+      <option value="Jita">Jita</option>
+      <option value="Amarr">Amarr</option>
+      <option value="Dodixie">Dodixie</option>
+    </select>
 
-  <label for="to">Ship to:</label>
-  <select id="to">
-    <option value="Jita">Jita</option>
-    <option value="Amarr">Amarr</option>
-    <option value="Dodixie">Dodixie</option>
-  </select>
+    <div id="rateDisplay">Kosten pro m³: –</div>
 
-  <label for="volume">Volumen (m³):</label>
-  <input type="number" id="volume" placeholder="z. B. 10000" min="0">
+    <label for="volume">Volumen (m³):</label>
+    <input type="number" id="volume" placeholder="z. B. 10000" min="0" oninput="updateRateAndCalculate()">
 
-  <button onclick="calculate()">Kosten berechnen</button>
-
-  <div id="result"></div>
+    <label for="result">Gesamtkosten (ISK):</label>
+    <div class="copy-wrap">
+      <input type="text" id="result" readonly onclick="this.select();">
+      <button class="copy-btn" onclick="copyToClipboard()">Copy</button>
+    </div>
+  </div>
 
   <script>
     const rates = {
@@ -96,35 +127,46 @@
 
     const MIN_PRICE = 5_000_000;
 
-    function calculate() {
+    function updateRateAndCalculate() {
       const from = document.getElementById('from').value;
       const to = document.getElementById('to').value;
       const volume = parseFloat(document.getElementById('volume').value);
+      const rateDisplay = document.getElementById('rateDisplay');
+      const result = document.getElementById('result');
       const route = `${from}-${to}`;
       const rate = rates[route];
-      const result = document.getElementById('result');
 
       if (from === to) {
-        result.textContent = "Start- und Zielsystem dürfen nicht identisch sein.";
+        rateDisplay.textContent = "Kosten pro m³: –";
+        result.value = "Start- und Zielsystem dürfen nicht gleich sein.";
         return;
       }
 
       if (!rate) {
-        result.textContent = "Für diese Route ist kein Preis hinterlegt.";
+        rateDisplay.textContent = "Kosten pro m³: –";
+        result.value = "Keine Route verfügbar.";
         return;
       }
+
+      rateDisplay.textContent = `Kosten pro m³: ${rate.toLocaleString()} ISK`;
 
       if (isNaN(volume) || volume <= 0) {
-        result.textContent = "Bitte ein gültiges Volumen in m³ eingeben.";
+        result.value = "Bitte Volumen eingeben.";
         return;
       }
 
-      let cost = rate * volume;
-      if (cost < MIN_PRICE) cost = MIN_PRICE;
+      let total = rate * volume;
+      if (total < MIN_PRICE) total = MIN_PRICE;
 
-      result.textContent = `Gesamtkosten: ${cost.toLocaleString()} ISK (inkl. Mindestpreis)`;
+      result.value = total.toLocaleString('en-US').replace(/,/g, '');
+    }
+
+    function copyToClipboard() {
+      const result = document.getElementById("result");
+      result.select();
+      result.setSelectionRange(0, 99999); // Mobile
+      document.execCommand("copy");
     }
   </script>
-
 </body>
 </html>
