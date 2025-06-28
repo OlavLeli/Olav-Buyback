@@ -131,7 +131,15 @@
     <div id="rateDisplay">Kosten pro m³: –</div>
 
     <label for="volume">Volumen (m³):</label>
-    <input type="number" id="volume" placeholder="z. B. 10000" min="0" max="330000">
+    <input type="number" 
+         id="volume" 
+         placeholder="z. B. 10000" 
+         min="0" 
+         max="330000" 
+         step="1" 
+         required 
+         oninput="checkVolumeLimit(this)">
+    <small id="volume-warning" style="color: red; display: none;">Maximal 330'000 m³ erlaubt!</small>
 
     <label for="collateral">Collateral (ISK)</label>
     <input type="text" id="collateral" placeholder="z. B. 1.2b oder 500m">
@@ -203,6 +211,15 @@
         result.value = "Bitte Volumen eingeben.";
         return;
       }
+
+      function checkVolumeLimit(input) {
+      const warning = document.getElementById('volume-warning');
+      if (parseInt(input.value) > 330000) {
+      warning.style.display = 'block';
+      input.value = 330000;
+      } else {
+      warning.style.display = 'none';
+    }
 
       let total = rate * volume;
       if (total < MIN_PRICE) total = MIN_PRICE;
