@@ -109,7 +109,9 @@
     <label for="to">Nach:</label>
     <select id="to" onchange="updateRoutePrice()">
       <option value="4-HWWF - WinterCo. Central Station">4-HWWF Keepstar</option>
-      <option value="T-GCGL">T-GCGL</option>
+      <option value="T-GCGL - PRIVATE KTRO Tycho Station">T-GCGL Sotiyo</option>
+      <option value="T-GCGL - KTRO - R O L F S T A R">T-GCGL Keepstar</option>
+      <option value="T-GCGL - Public Reactor">T-GCGL Tatara</option>
     </select>
 
     <p id="route-price"></p>
@@ -173,9 +175,13 @@
   <script>
     const rates = {
       'Jita-4-HWWF - WinterCo. Central Station': 480,
-      'Jita-T-GCGL': 530,
-      '4-HWWF-T-GCGL': 80,
-      'T-GCGL-4-HWWF': 80
+      'Jita-T-GCGL - PRIVATE KTRO Tycho Station': 530,
+      'Jita-T-GCGL - KTRO - R O L F S T A R': 530,
+      'Jita-T-GCGL - Public Reactor': 530,
+      '4-HWWF-T-GCGL - PRIVATE KTRO Tycho Station': 80,
+      '4-HWWF-T-GCGL - KTRO - R O L F S T A R': 80,
+      '4-HWWF-T-GCGL - Public Reactor': 80,
+      'T-GCGL-4-HWWF - WinterCo. Central Station': 80
     };
 
     function checkVolumeLimit(input) {
