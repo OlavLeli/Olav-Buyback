@@ -237,6 +237,7 @@
       const total = Math.round(basePrice + collateralFee);
 
       document.getElementById('result').value = formatISK(total);
+      updateContractFields();
     }
 
     function copyToClipboard() {
@@ -265,7 +266,6 @@
 
     // Initial anzeigen
     updateRoutePrice();
-    updateContractFields();
   </script>
 </body>
 </html>
