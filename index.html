@@ -54,13 +54,14 @@
     }
 
     .copy-wrap input {
-      width: 100%;          /* Volle Breite im Container */
-      max-width: 400px;     /* Maximalbreite für Desktop */
+      width: 100%;
+      max-width: 400px;
       padding: 10px;
       font-size: 1.1em;
       border-radius: 6px;
       border: 1px solid #ccc;
       background-color: #f5f5f5;
+      color: #000;
     }
 
     .copy-btn {
@@ -74,6 +75,12 @@
 
     .copy-btn:hover {
       background-color: #1e7e34;
+    }
+
+    #route-price {
+      margin-top: 10px;
+      font-weight: bold;
+      color: #ffd700;
     }
 
     @media (max-width: 500px) {
@@ -93,17 +100,19 @@
     <h2>EVE Online Kurier-Rechner</h2>
 
     <label for="from">Von:</label>
-    <select id="from">
+    <select id="from" onchange="updateRoutePrice()">
       <option value="Jita">Jita</option>
       <option value="T-GCGL">T-GCGL</option>
       <option value="4-HWWF">4-HWWF</option>
     </select>
-    
+
     <label for="to">Nach:</label>
-    <select id="to">
+    <select id="to" onchange="updateRoutePrice()">
       <option value="4-HWWF">4-HWWF</option>
       <option value="T-GCGL">T-GCGL</option>
     </select>
+
+    <p id="route-price"></p>
 
     <label for="volume">Volumen (m³):</label>
     <input type="number" id="volume" placeholder="z. B. 10000" min="0" max="330000" step="1" oninput="checkVolumeLimit(this)">
@@ -150,6 +159,26 @@
       return value.toLocaleString('en-US', {maximumFractionDigits: 0}) + ' ISK';
     }
 
+    function updateRoutePrice() {
+      const from = document.getElementById('from').value;
+      const to = document.getElementById('to').value;
+      const routeKey = `${from}-${to}`;
+      const rate = rates[routeKey];
+      const priceElement = document.getElementById('route-price');
+
+      if (from === to) {
+        priceElement.textContent = '⚠️ Start- und Zielsystem müssen unterschiedlich sein.';
+        return;
+      }
+
+      if (!rate) {
+        priceElement.textContent = '❌ Für diese Route liegt kein Preis vor.';
+        return;
+      }
+
+      priceElement.textContent = `📦 Preis: ${rate.toLocaleString()} ISK / m³`;
+    }
+
     function calculate() {
       const from = document.getElementById('from').value;
       const to = document.getElementById('to').value;
@@ -182,6 +211,9 @@
       result.setSelectionRange(0, 99999);
       navigator.clipboard.writeText(result.value);
     }
+
+    // Initial anzeigen
+    updateRoutePrice();
   </script>
 </body>
 </html>
