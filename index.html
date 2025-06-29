@@ -139,32 +139,32 @@
       <button class="copy-btn" onclick="copyField('contract-name')">Copy</button>
     </div>
 
+    <label for="contract-destination">Ship to</label> 
     <div class="copy-wrap">
-      <label for="contract-destination">Ship to</label>
       <input type="text" id="contract-destination" readonly>
       <button class="copy-btn" onclick="copyField('contract-destination')">Copy</button>
     </div>
 
+    <label for="contract-reward">Reward</label>
     <div class="copy-wrap">
-      <label for="contract-reward">Reward</label>
       <input type="text" id="contract-reward" readonly>
       <button class="copy-btn" onclick="copyField('contract-reward')">Copy</button>
     </div>
 
-    <div class="copy-wrap">
-      <label for="contract-collateral">Collateral</label>
+    <label for="contract-collateral">Collateral</label>
+    <div class="copy-wrap">    
       <input type="text" id="contract-collateral" readonly>
       <button class="copy-btn" onclick="copyField('contract-collateral')">Copy</button>
     </div>
 
-    <div class="copy-wrap">
-      <label>Expiration</label>
+    <label>Expiration</label>
+    <div class="copy-wrap">      
       <input type="text" value="2 Weeks" readonly>
       <button class="copy-btn" onclick="navigator.clipboard.writeText('2 Weeks')">Copy</button>
     </div>
 
+    <label>Days of complete</label> 
     <div class="copy-wrap">
-      <label>Days of complete</label>
       <input type="text" value="1" readonly>
       <button class="copy-btn" onclick="navigator.clipboard.writeText('1')">Copy</button>
     </div>
@@ -260,7 +260,7 @@
 
       document.getElementById('contract-destination').value = `${to}`;
       document.getElementById('contract-reward').value = `${result}`;
-      document.getElementById('contract-collateral').value = `${collateral}`;
+      document.getElementById('contract-collateral').value = `${collateral.toLocaleString('en-US', { maximumFractionDigits: 0 })} ISK`;
     }
 
     function copyField(id) {
