@@ -256,8 +256,9 @@
     function updateContractFields() {
       const to = document.getElementById('to').value;
       const result = document.getElementById('result').value;
-      const collateral = document.getElementById('collateral').value;
-
+      const collateralRaw = document.getElementById('collateral').value;
+      const collateral = parseISK(collateralRaw);
+      
       document.getElementById('contract-destination').value = `${to}`;
       document.getElementById('contract-reward').value = `${result}`;
       document.getElementById('contract-collateral').value = `${collateral.toLocaleString('en-US', { maximumFractionDigits: 0 })} ISK`;
