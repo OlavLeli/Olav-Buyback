@@ -115,8 +115,8 @@
     <p id="route-price"></p>
 
     <label for="volume">Volumen (m³):</label>
-    <input type="number" id="volume" placeholder="z. B. 10000" min="0" max="330000" step="1" oninput="checkVolumeLimit(this)">
-    <small id="volume-warning">Maximal 330'000 m³ erlaubt!</small>
+    <input type="number" id="volume" placeholder="Maximal 340'000 m³" min="0" max="340000" step="1" oninput="checkVolumeLimit(this)">
+    <small id="volume-warning">Maximal 340'000 m³ erlaubt!</small>
 
     <label for="collateral">Collateral (+1%):</label>
     <input type="text" id="collateral" placeholder="z. B. 2.5b oder 100m">
@@ -174,14 +174,14 @@
     const rates = {
       'Jita-4-HWWF': 480,
       'Jita-T-GCGL': 500,
-      '4-HWWF-T-GCGL': 300,
-      'T-GCGL-4-HWWF': 300
+      '4-HWWF-T-GCGL': 50,
+      'T-GCGL-4-HWWF': 50
     };
 
     function checkVolumeLimit(input) {
       const warning = document.getElementById('volume-warning');
-      if (parseInt(input.value) > 330000) {
-        input.value = 330000;
+      if (parseInt(input.value) > 340000) {
+        input.value = 340000;
         warning.style.display = 'block';
       } else {
         warning.style.display = 'none';
